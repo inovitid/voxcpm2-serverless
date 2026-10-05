@@ -80,7 +80,8 @@ def handler(job):
         )
 
         buf = io.BytesIO()
-        sample_rate = getattr(model.tts_model, "sample_rate", 24000)
+        # VoxCPM2 neural vocoder natively synthesizes 48kHz audio
+        sample_rate = 48000
         sf.write(buf, wav, sample_rate, format="WAV")
         buf.seek(0)
 
