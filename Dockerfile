@@ -20,10 +20,11 @@ RUN pip install --no-cache-dir \
     soundfile \
     torchaudio \
     fastapi \
-    pydantic
+    pydantic \
+    huggingface_hub
 
-# Pre-download openbmb/VoxCPM2 model during build so workers start instantly
-RUN python3 -c "from voxcpm import VoxCPM; print('Pre-downloading model...'); VoxCPM.from_pretrained('openbmb/VoxCPM2', load_denoiser=False); print('Pre-download complete!')"
+# Pre-download openbmb/VoxCPM2 weights during build so workers start instantly
+RUN python3 -c "from huggingface_hub import snapshot_download; print('Pre-downloading openbmb/VoxCPM2 weights...'); snapshot_download('openbmb/VoxCPM2'); print('Weights pre-downloaded successfully!')"
 
 # Copy audio reference and handler
 COPY julia_ref_16k.wav /app/julia_ref_16k.wav
