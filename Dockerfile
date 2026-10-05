@@ -21,7 +21,8 @@ RUN pip install --no-cache-dir \
     torchaudio \
     fastapi \
     pydantic \
-    huggingface_hub
+    huggingface_hub \
+    torchcodec
 
 # Pre-download openbmb/VoxCPM2 weights during build so workers start instantly
 RUN python3 -c "from huggingface_hub import snapshot_download; print('Pre-downloading openbmb/VoxCPM2 weights...'); snapshot_download('openbmb/VoxCPM2'); print('Weights pre-downloaded successfully!')"

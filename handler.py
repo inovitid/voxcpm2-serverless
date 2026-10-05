@@ -12,6 +12,26 @@ import base64
 import torch
 import soundfile as sf
 import runpod
+import torchaudio
+
+# Ensure torchaudio doesn't fail if torchcodec is missing
+_orig_load = getattr(torchaudio, "load", None)
+def safe_load(filepath, *args, **kwargs):
+    if _orig_load is not None:
+        try:
+            return _orig_load(filepath, *args, **kwargs)
+        except Exception:
+            pass
+    data, sr = sf.read(filepath)
+    tensor = torch.from_numpy(data).float()
+    if tensor.ndim == 1:
+        tensor = tensor.unsqueeze(0)
+    else:
+        tensor = tensor.t()
+    return tensor, sr
+
+torchaudio.load = safe_load
+
 from voxcpm import VoxCPM
 
 REF_WAV = os.environ.get("REF_WAV", "/app/julia_ref_16k.wav")
