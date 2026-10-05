@@ -34,9 +34,15 @@ torchaudio.load = safe_load
 
 from voxcpm import VoxCPM
 
-REF_WAV = os.environ.get("REF_WAV", "/app/julia_ref_16k.wav")
+REF_WAV = os.environ.get("REF_WAV", "/app/julia_ref.wav")
 if not os.path.exists(REF_WAV):
-    REF_WAV = "julia_ref_16k.wav"
+    if os.path.exists("/app/julia_host.mp3"):
+        audio_data, sr = torchaudio.load("/app/julia_host.mp3")
+        if audio_data.shape[0] > 1:
+            audio_data = torch.mean(audio_data, dim=0, keepdim=True)
+        torchaudio.save(REF_WAV, audio_data, sr)
+    elif os.path.exists("julia_ref.wav"):
+        REF_WAV = "julia_ref.wav"
 
 JULIA_TRANSCRIPT = (
     "Halo guys perkenalin nama aku Julia Laura buat kalian yang mau jualan melalui "
@@ -63,14 +69,14 @@ def handler(job):
         return {"error": "VoxCPM2 model failed to initialize"}
 
     cfg_value = float(job_input.get("cfg_value", 2.0))
-    inference_timesteps = int(job_input.get("inference_timesteps", 8))
+    inference_timesteps = int(job_input.get("inference_timesteps", 6))
 
     try:
         torch.manual_seed(42)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(42)
 
-        # Generate audio using exact VoxCPM 2 engine
+        # Generate audio using exact VoxCPM 2 engine from runpod_server.py
         wav = model.generate(
             text=text,
             prompt_wav_path=REF_WAV,
@@ -80,8 +86,7 @@ def handler(job):
         )
 
         buf = io.BytesIO()
-        # VoxCPM2 neural vocoder natively synthesizes 48kHz audio
-        sample_rate = 48000
+        sample_rate = getattr(model.tts_model, "sample_rate", 24000)
         sf.write(buf, wav, sample_rate, format="WAV")
         buf.seek(0)
 

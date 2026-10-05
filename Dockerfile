@@ -28,10 +28,11 @@ RUN pip install --no-cache-dir \
 RUN python3 -c "from huggingface_hub import snapshot_download; print('Pre-downloading openbmb/VoxCPM2 weights...'); snapshot_download('openbmb/VoxCPM2'); print('Weights pre-downloaded successfully!')"
 
 # Copy audio reference and handler
-COPY julia_ref_16k.wav /app/julia_ref_16k.wav
+COPY julia_host.mp3 /app/julia_host.mp3
+COPY julia_ref.wav /app/julia_ref.wav
 COPY handler.py /app/handler.py
 
 ENV PYTHONUNBUFFERED=1
-ENV REF_WAV=/app/julia_ref_16k.wav
+ENV REF_WAV=/app/julia_ref.wav
 
 CMD ["python3", "-u", "/app/handler.py"]
