@@ -30,9 +30,10 @@ RUN python3 -c "from huggingface_hub import snapshot_download; print('Pre-downlo
 # Copy audio reference and handler
 COPY julia_host.mp3 /app/julia_host.mp3
 COPY julia_ref.wav /app/julia_ref.wav
+COPY julia_ref_16k.wav /app/julia_ref_16k.wav
 COPY handler.py /app/handler.py
 
 ENV PYTHONUNBUFFERED=1
-ENV REF_WAV=/app/julia_ref.wav
+ENV REF_WAV=/app/julia_ref_16k.wav
 
 CMD ["python3", "-u", "/app/handler.py"]
