@@ -26,4 +26,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: inovittrades/voxcpm2-serverless:latest
+          tags: |
+            inovittrades/voxcpm2-serverless:latest
+            inovittrades/voxcpm2-serverless:${{ github.sha }}
